@@ -51,7 +51,7 @@ public class DirectoryManager {
         // Create directory and push record
         new File(path + '/' + name).mkdirs();
         directories.put(dirName, new JSONObject(directoryFrom(parentId, parentCnt + 1, name)));
-        FileManager.getFiles().put(getDirId(dirName), new JSONObject(String.format("{'path': \"%s\", 'files': {}}", dirName)));
+        FileManager.files.put(getDirId(dirName), new JSONObject(String.format("{'path': \"%s\", 'files': {}}", dirName)));
     }
 
     public static void removeDirectory(String name, String path) {

@@ -1,8 +1,6 @@
-import managers.Authenticate;
-import managers.DirectoryManager;
-import managers.FileManager;
-import managers.UserManager;
+import managers.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -19,19 +17,14 @@ public class LinuxMock {
                 UserManager.saveFile();
                 FileManager.saveFile();
                 DirectoryManager.saveFile();
+                Linker.saveFile();
                 System.out.println("Files Saved");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }));
 
-        // Example
-        run(false);
-        DirectoryManager.makeDirectory("dir1", "root");
-        FileManager.makeFile("file2", "root/dir1");
-
-        // ---------- Reset all files back to just root -------------
-        resetFiles();
+         // ---------- Reset all files back to just root -------------
     }
 
     static void run(boolean loggedIn) {
