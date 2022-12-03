@@ -9,7 +9,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Linker {
+public class LinkManager {
 
     static FileReader reader;
     static FileWriter fileWriter;
@@ -20,8 +20,8 @@ public class Linker {
 
     static {
         try {
-            file = new File("src/Database/links.json");
-            reader = new FileReader("src/Database/links.json");
+            file = new File("Database/links.json");
+            reader = new FileReader("Database/links.json");
             Object obj = parser.parse(reader);
             links = new JSONObject(obj.toString());
             fileWriter = new FileWriter(file, false);
@@ -30,32 +30,25 @@ public class Linker {
         }
     }
 
-    public static void makeLink(String target, String newLink) throws IOException {
-        int index1 = target.lastIndexOf('/');
-        String path1 = index1 == -1 ? "" : target.substring(0, index1);
-        String file1 = target.substring(index1 + 1);
+    public static void makeLink(String path1, String file1, String newLink, String owner, int umask) throws IOException {
 
-        String path2 = index1 == -1 ? "" : newLink.substring(0, index1);
+        int index1 = newLink.lastIndexOf('/');
+        String path2 = index1 == -1 ? "" : newLink.substring(0, index1 + 1);
         String file2 = newLink.substring(index1 + 1);
 
         JSONObject fileData = FileManager.getFile(file1, path1);
         int inode = fileData.getInt("inode");
 
-        Files.createLink(Paths.get(newLink), Paths.get(target));
+        Files.createLink(Paths.get(newLink), Paths.get(path1 + file1));
 
         if (!hasLink(inode)) {
             fileData.put("linkIdx", 0);
-            links.put(String.valueOf(inode), new JSONArray().put(target));
+            links.put(String.valueOf(inode), new JSONArray().put(path1 + file1));
         }
 
         JSONArray array = links.getJSONArray(String.valueOf(inode)).put(newLink);
+        FileManager.makeFileRecord(file2, path2, owner, umask).put("inode", inode).put("linkIdx", array.length() - 1);
 
-        FileManager.makeFileRecord(file2, path2).put("inode", inode).put("linkIdx", array.length() - 1);
-
-    }
-
-    protected static boolean hasLink(int inode) {
-        return links.has((String.format("%d", inode)));
     }
 
     public static void saveFile() throws IOException {
@@ -64,6 +57,10 @@ public class Linker {
             fileWriter.write(links.toString());
         }
         fileWriter.close();
+    }
+
+    protected static boolean hasLink(int inode) {
+        return links.has((String.format("%d", inode)));
     }
 
     private static boolean isEmpty() throws IOException {

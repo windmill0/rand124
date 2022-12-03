@@ -1,10 +1,12 @@
 package managers;
 
+import roles.User;
+
 import java.util.Scanner;
 
 public class Authenticate {
 
-    public static boolean login(String username) {
+    public static User login(String username) {
         Scanner input = new Scanner(System.in);
 
         if (!UserManager.hasUser(username)) {
@@ -13,13 +15,13 @@ public class Authenticate {
 
         System.out.println("Enter the password:");
 
-        if (UserManager.isPassword(username, input.next())) {
+        if (!UserManager.isPassword(username, input.next())) {
             throw new RuntimeException("Incorrect password");
         }
 
         System.out.printf("Welcome %s!\n", username);
 
-        return true;
+        return new User(username);
     }
 
 }
